@@ -6,17 +6,18 @@ import AddProductForm from './components/AddProductsForm.jsx';
 function App() {
   const [products, setProducts] = useState([]);
 
-  const fetchInventory = async () => {
+ const fetchInventory = async () => {
     const { data, error } = await supabase
-      .from('products')
-      .select('id, name, price, categories ( name )');
-
+        .from('products')
+        .select('id, name, price, quantity, categories ( name )')
+        .order('name', { ascending: true });
+    
     if (error) {
-      console.error("Fetch error:", error);
+        console.error("Fetch error:", error);
     } else {
-      setProducts(data || []);
+        setProducts(data || []);
     }
-  };
+};
 
   useEffect(() => {
     fetchInventory();
