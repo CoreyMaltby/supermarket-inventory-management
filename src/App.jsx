@@ -39,7 +39,7 @@ function App() {
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
       <h1>Supermarket Inventory Manager</h1>
-      <AddProductForm onProductAdded={() => { }} />
+      <AddProductForm onProductAdded={fetchInventory} />
       <InventoryList products={products} refreshData={fetchInventory} />
     </div>
   );

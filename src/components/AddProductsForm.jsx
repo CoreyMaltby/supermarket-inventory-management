@@ -7,27 +7,22 @@ export default function AddProductsForm({ onProductAdded }) {
     const [categoryId, setCategoryId] = useState(1);
     const [loading, setLoading] = useState(false);
 
+    // Inside AddProductsForm.jsx
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
 
         const { error } = await supabase
             .from('products')
-            .insert([{ 
-                name, 
-                price: parseFloat(price), 
-                category_id: parseInt(categoryId)
-            }]);
+            .insert([{ name, price: parseFloat(price), category_id: categoryId }]);
 
         if (error) {
-            alert("Error adding product: " + error.message);
+            alert(error.message);
         } else {
             setName('');
             setPrice('');
-            onProductAdded(); 
+
+            onProductAdded();
         }
-        
-        setLoading(false);
     };
 
     return (
@@ -50,8 +45,8 @@ export default function AddProductsForm({ onProductAdded }) {
                     required
                     disabled={loading}
                 />
-                <select 
-                    value={categoryId} 
+                <select
+                    value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
                     disabled={loading}
                 >
