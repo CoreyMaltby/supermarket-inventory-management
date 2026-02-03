@@ -1,7 +1,8 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import ManageSuppliers from "./ManageSuppliers";
 
-export default function SuppliersDirectory() {
+export default function SuppliersDirectory({ products }) {
     const [suppliers, setSuppliers] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -29,7 +30,15 @@ export default function SuppliersDirectory() {
 
     return (
         <div style={{ padding: '20px' }}>
-            <h2>Supplier Directory</h2>
+            <h2>Supplier Management</h2>
+            <ManageSuppliers
+                products={products}
+                onSupplierAdded={fetchSuppliers}
+            />
+
+            <hr style={{ margin: '30px 0' }} />
+
+            <h2>Active Supplier Directory</h2>
             {loading ? <p>Loading suppliers...</p> : (
                 <div style={{ display: 'grid', gap: '20px' }}>
                     {suppliers.map(supplier => (
@@ -37,7 +46,11 @@ export default function SuppliersDirectory() {
                             <h3 style={{ margin: '0 0 10px 0', color: '#007bff' }}>{supplier.name}</h3>
                             <div>
                                 <strong>Catalog:</strong>
-                                <p style={{ marginTop: '5px', color: supplier.product_suppliers.length > 0 ? '#000' : '#999', fontSize: supplier.product_suppliers.length > 0 ? '1rem' : '0.9rem' }}>
+                                <p style={{
+                                    marginTop: '5px',
+                                    color: supplier.product_suppliers.length > 0 ? '#000' : '#999',
+                                    fontSize: supplier.product_suppliers.length > 0 ? '1rem' : '0.9rem'
+                                }}>
                                     {supplier.product_suppliers.length > 0 ? (
                                         supplier.product_suppliers.map((ps, index) => ps.products.name).join(', ')
                                     ) : (
