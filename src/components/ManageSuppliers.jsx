@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
 export default function ManageSuppliers({ products, onSuppliersAdded }) {
+    // Local states for form inputs
     const [supplierName, setSupplierName] = useState('');
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    // Handle checkbox selection for products
     const handleCheckboxChange = (productId) => {
         setSelectedProducts((prev) =>
             prev.includes(productId)
@@ -14,6 +16,7 @@ export default function ManageSuppliers({ products, onSuppliersAdded }) {
         );
     };
 
+    // Handle form submission to add a new supplier and map products
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -21,7 +24,7 @@ export default function ManageSuppliers({ products, onSuppliersAdded }) {
         const { data: supplier, error: supplierError } = await supabase
             .from('suppliers')
             .insert([{ name: supplierName }])
-            .select()
+            .select() // Return the inserted supplier
             .single();
 
         if (supplierError) {
@@ -30,12 +33,15 @@ export default function ManageSuppliers({ products, onSuppliersAdded }) {
             return;
         }
 
+        // Map selected products to the new supplier
         if (selectedProducts.length > 0) {
+            // Prepare an array of objects mapping the new supplier to each selected product
             const associations = selectedProducts.map((productId) => ({
                 supplier_id: supplier.id,
                 product_id: productId
             }));
 
+            // Insert associations into the product_suppliers junction table
             const { error: associationError } = await supabase
                 .from('product_suppliers')
                 .insert(associations);

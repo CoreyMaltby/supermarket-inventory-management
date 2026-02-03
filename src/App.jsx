@@ -7,42 +7,52 @@ import RestockScreen from './components/RestockScreen.jsx';
 import SupplierDirectory from './components/SuppliersDirectory.jsx';
 
 function App() {
+  // Global state to store products fetched from Supabase
   const [products, setProducts] = useState([]);
+  // State to manage the current view (admin, customer, restock, suppliers)
   const [view, setView] = useState('admin');
 
+  // Function to fetch inventory data from Supabase products table
   const fetchInventory = async () => {
     const { data, error } = await supabase
       .from('products')
+      // Select product columns and the linked category name
       .select('id, name, price, quantity, categories ( name )')
       .order('name', { ascending: true });
 
     if (error) {
       console.error('Error fetching inventory:', error);
     } else {
+      // Update state with fetched products
       setProducts(data || []);
     }
   };
 
   useEffect(() => {
+    // Initial fetch of inventory data
     fetchInventory();
 
+    // Set up real-time subscription to listen for changes in the products table
     const channel = supabase
       .channel('schema-db-changes')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'products' },
+        { event: '*', schema: 'public', table: 'products' }, // Listen to all changes
         (payload) => {
           console.log('Database changed!', payload);
+          // Refresh inventory data on any change
           fetchInventory();
         }
       )
       .subscribe();
 
+    // Clean up subscription on component unmount
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
 
+  // Calculate inventory statistics
   const totalInventoryValue = products.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const outOfStockCount = products.filter(item => item.quantity === 0).length;
   const lowStockCount = products.filter(item => item.quantity > 0 && item.quantity < 5).length;

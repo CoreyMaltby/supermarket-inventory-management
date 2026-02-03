@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 export default function RestockScreen({ products, refreshData }) {
+    // Local state to track restock amounts for each product
     const [restockAmounts, setRestockAmounts] = useState({});
 
+
+    // Handle restocking a product
     const handleRestock = async (product) => {
         const amountToAdd = parseInt(restockAmounts[product.id] || 0);
 
@@ -12,6 +15,7 @@ export default function RestockScreen({ products, refreshData }) {
             return;
         }
 
+        // Perform an UPDATE operation to increase the product quantity
         const { error } = await supabase
             .from('products')
             .update({ quantity: product.quantity + amountToAdd })
@@ -23,9 +27,11 @@ export default function RestockScreen({ products, refreshData }) {
             setRestockAmounts({ ...restockAmounts, [product.id]: '' });
             alert(`Successfully added ${amountToAdd} units to ${product.name}`);
         }
+        // Refresh the product list to reflect updated stock
         refreshData();
     };
 
+    // Handle input change for restock amounts
     const handleInputChange = (id, value) => {
         setRestockAmounts({ ...restockAmounts, [id]: value });
     };

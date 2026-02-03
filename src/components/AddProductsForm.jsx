@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 export default function AddProductsForm({ onProductAdded }) {
+    // Local states for form inputs
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [categoryId, setCategoryId] = useState(1);
     const [loading, setLoading] = useState(false);
 
-    // Inside AddProductsForm.jsx
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Perform an INSERT operation to add a new product
         const { error } = await supabase
             .from('products')
             .insert([{ name, price: parseFloat(price), category_id: categoryId }]);
@@ -20,7 +21,7 @@ export default function AddProductsForm({ onProductAdded }) {
         } else {
             setName('');
             setPrice('');
-
+            // Notify parent component to refresh the product list
             onProductAdded();
         }
     };

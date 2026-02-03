@@ -2,20 +2,23 @@ import { supabase } from '../supabaseClient';
 
 export default function OrderingScreen({ products, refreshData }) {
     const handleOrder = async (product) => {
+        // Check if the product is in stock
         if (product.quantity <= 0) {
             alert('This item is currently out of stock!');
             return;
         }
 
+        // Perform an UPDATE operation to decrease the product quantity
         const { error } = await supabase
             .from('products')
             .update({ quantity: product.quantity - 1 })
-            .eq('id', product.id);
+            .eq('id', product.id); // Identify the product by its ID
 
         if (error) {
             console.error('Order failed:', error);
             alert('Transaction failed. Please try again.');
         }
+        // Refresh the product list to reflect updated stock
         refreshData();
     };
 

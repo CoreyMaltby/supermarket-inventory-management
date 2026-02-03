@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 
 export default function InventoryList({ products, refreshData }) {
+    // Local states for editing
     const [editingId, setEditingId] = useState(null);
     const [editName, setEditName] = useState('');
     const [editPrice, setEditPrice] = useState('');
@@ -14,6 +15,7 @@ export default function InventoryList({ products, refreshData }) {
         setEditQuantity(product.quantity);
     };
 
+    // Handle updating a product
     const handleUpdate = async (id) => {
         const { error } = await supabase
             .from('products')
@@ -32,6 +34,8 @@ export default function InventoryList({ products, refreshData }) {
         }
     };
 
+
+    // Handle deleting a product
     const handleDelete = async (id) => {
         if (window.confirm("Delete this item?")) {
             const { error } = await supabase.from('products').delete().eq('id', id);

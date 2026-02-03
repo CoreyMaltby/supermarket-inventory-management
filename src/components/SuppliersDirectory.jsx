@@ -3,6 +3,7 @@ import { supabase } from "../supabaseClient";
 import ManageSuppliers from "./ManageSuppliers";
 
 export default function SuppliersDirectory({ products }) {
+    // Local state to hold suppliers data
     const [suppliers, setSuppliers] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -10,6 +11,7 @@ export default function SuppliersDirectory({ products }) {
         fetchSuppliers();
     }, []);
 
+    // Function to fetch suppliers and their associated products
     async function fetchSuppliers() {
         setLoading(true);
         const { data, error } = await supabase
