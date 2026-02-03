@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { supabase } from './supabaseClient';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
+
+  async function fetchInventory() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('products')
+      .select(`
+        id,
+        name,
+        price,
+        categories ( name )
+      `);
+
+    if (error) console.error('Error:', error);
+    else setProducts(data);
+    setLoading(false);
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div style={{ padding: '20px' }}>
+      <h1>Supermarket Inventory Manager</h1>
+      <hr />
+
+      {loading ? (
+        <p>Loading inventory...</p>
+      ) : (
+        <table border="1" cellPadding="10" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#f4f4f4' }}>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((item) => (
+              <tr key={item.id}>
+                <td>{item.name}</td>
+                <td>{item.categories?.name || 'Uncategorized'}</td>
+                <td>${item.price.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <button onClick={fetchInventory} style={{ marginTop: '20px' }}>
+        Refresh Data
+      </button>
+    </div>
+  );
 }
 
-export default App
+export default App;
