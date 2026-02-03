@@ -3,16 +3,17 @@ import { supabase } from './supabaseClient';
 import InventoryList from './components/InventoryList.jsx';
 import AddProductsForm from './components/AddProductsForm.jsx';
 import OrderingScreen from './components/OrderingScreen.jsx';
+import RestockScreen from './components/RestockScreen.jsx';
 
 function App() {
   const [products, setProducts] = useState([]);
   const [view, setView] = useState('admin')
 
-  const fetchInventory = async () => {
+ const fetchInventory = async () => {
     const { data } = await supabase
-      .from('products')
-      .select('id, name, price, quantity, categories ( name )')
-      .order('name', { ascending: true });
+        .from('products')
+        .select('id, name, price, quantity, categories ( name )')
+        .order('name', { ascending: true });
     setProducts(data || []);
   };
 
@@ -21,13 +22,13 @@ function App() {
     const channel = supabase
       .channel('schema-db-changes')
       .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'products' },
-        (payload) => {
-          console.log('Database changed!', payload);
-          fetchInventory();
-        }
-      )
+  'postgres_changes',
+  { event: '*', schema: 'public', table: 'products' },
+  (payload) => {
+    console.log('Database changed!', payload);
+    fetchInventory(); 
+  }
+)
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -39,14 +40,17 @@ function App() {
       <nav style={{ marginBottom: '20px', textAlign: 'center' }}>
         <button onClick={() => setView('admin')} style={navBtnStyle(view === 'admin')}>Manage Inventory</button>
         <button onClick={() => setView('customer')} style={navBtnStyle(view === 'customer')}>Customer Storefront</button>
+        <button onClick={() => setView('restock')} style={navBtnStyle(view === 'restock')}>Restock Items</button>
       </nav>
 
       {view === 'admin' ? (
         <>
-          <h1>🛠 Inventory Admin</h1>
+          <h1>Inventory Admin</h1>
           <AddProductsForm onProductAdded={fetchInventory} />
           <InventoryList products={products} refreshData={fetchInventory} />
         </>
+      ) : view === 'restock' ? (
+        <RestockScreen products={products} refreshData={fetchInventory}/>
       ) : (
         <OrderingScreen products={products} refreshData={fetchInventory} />
       )}
