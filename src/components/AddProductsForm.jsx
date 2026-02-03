@@ -5,44 +5,73 @@ export default function AddProductsForm({ onProductAdded }) {
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
     const [categoryId, setCategoryId] = useState(1);
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
 
-        const { erorr } = await supabase.from('products').insert([{ name, price: parseFloat(price), category_id: categoryId }]);
+        const { error } = await supabase
+            .from('products')
+            .insert([{ 
+                name, 
+                price: parseFloat(price), 
+                category_id: parseInt(categoryId)
+            }]);
 
         if (error) {
-            alert(error.message);
+            alert("Error adding product: " + error.message);
         } else {
             setName('');
             setPrice('');
-            onProductAdded();
+            onProductAdded(); 
         }
+        
+        setLoading(false);
     };
+
     return (
-        <form onSubmit={handleSubmit} style={{ marginBottom: '30px', padding: '15px', border: '1px solid #ddd' }}>
+        <form onSubmit={handleSubmit} style={formStyle}>
             <h3>Add New Product</h3>
-            <input
-                placeholder="Product Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-            />
-            <input
-                type="number"
-                step="0.01"
-                placeholder="Price"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                required
-            />
-            <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-                <option value="1">Produce</option>
-                <option value="2">Dairy</option>
-                <option value="3">Bakery</option>
-                <option value="4">Frozen Foods</option>
-            </select>
-            <button type="submit">Add Product</button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+                <input
+                    placeholder="Product Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    disabled={loading}
+                />
+                <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                    disabled={loading}
+                />
+                <select 
+                    value={categoryId} 
+                    onChange={(e) => setCategoryId(e.target.value)}
+                    disabled={loading}
+                >
+                    <option value="1">Produce</option>
+                    <option value="2">Dairy</option>
+                    <option value="3">Bakery</option>
+                    <option value="4">Frozen Foods</option>
+                </select>
+                <button type="submit" disabled={loading}>
+                    {loading ? 'Adding...' : 'Add Product'}
+                </button>
+            </div>
         </form>
     );
 }
+
+const formStyle = {
+    marginBottom: '30px',
+    padding: '20px',
+    border: '1px solid #ddd',
+    borderRadius: '8px',
+    backgroundColor: '#fafafa'
+};
