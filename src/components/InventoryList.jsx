@@ -33,7 +33,7 @@ export default function InventoryList({ products, refreshData }) {
           <tr key={item.id}>
             <td>{item.name}</td>
             <td>{item.categories?.name}</td>
-            <td>${item.price.toFixed(2)}</td>
+            <td>£{item.price.toFixed(2)}</td>
             <td>
               <button onClick={() => handleDelete(item.id)} style={{ color: 'red' }}>
                 Delete
